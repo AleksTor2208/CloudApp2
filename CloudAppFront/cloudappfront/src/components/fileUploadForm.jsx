@@ -21,11 +21,11 @@ class FileUploadForm extends Form {
 
     doSubmit = async (e, navigate) => {
         //saveFile(this.state.files[0]);
+        
         await this.props.handleUpload(this.state.file/*this.state.allFiles[0]*/);
         this.setState({ uploadDisabled: true });        
         toast.success("File added successfully.");
-        alert("File added successfully.");
-
+        //e.preventDefault();
         //const navigate = useNavigate();
         //navigate('/cloud');
     }

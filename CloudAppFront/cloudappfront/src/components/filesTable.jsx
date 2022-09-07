@@ -25,6 +25,15 @@ class FilesTable extends Component {
                     Delete
                 </button>
             )
+        },
+        {
+            key: "download",
+            content: file => (
+                <button className="btn btn-info" onClick={() => this.props.onDownload(file)}>
+                    <i className="fa fa-download"></i>
+                    Download
+                </button>
+            )
         }
     ];
     render() {

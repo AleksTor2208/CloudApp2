@@ -15,9 +15,23 @@ namespace CloudAppWebApi.Model
         {                
         }
 
-        //[JsonIgnore]
+        private string? id;
+
         [JsonProperty("_id")]
-        public string Id => Guid.NewGuid().ToString();
+        public string Id {
+            get
+            {
+                if (id == null)
+                {
+                    id = Guid.NewGuid().ToString();                    
+                }
+                return id;
+            }
+            set
+            { 
+                id = value;
+            } 
+        }
         [JsonProperty("checked")]
         public bool IsChecked { get; set; }
         [JsonProperty("title")]
@@ -30,5 +44,7 @@ namespace CloudAppWebApi.Model
         public byte[] Content { get; set; }
         [JsonProperty("modifiedDate")]
         public string ModifiedDate { get; set; }
+        [JsonProperty("contentType")]
+        public string ContentType { get; set; }
     }
 }

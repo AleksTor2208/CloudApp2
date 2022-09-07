@@ -17,11 +17,12 @@ class Cloud extends Component {
         sortColumn: { path: "title", order: "asc" }
     }
 
+    
+
     async componentDidMount() {
         console.log('componentDidMount');
         const { data: files }  = await http.get('https://localhost:7027/cloud/files');
         this.setState({ files });
-        //this.setState({ files: getFiles() });
     }
 
     handleSort = sortColumn => {
@@ -37,12 +38,42 @@ class Cloud extends Component {
         this.setState({ files });
     };
 
-    handleFileUpload = async (file) => {
+    handleDownload = async (file) => {
+        const HOST = 'https://localhost:7027';
+        const CONTROLLER = 'cloud';
+        const ACTION = 'download';
 
-        let HOST = 'https://localhost:7027';
-        let controller = 'cloud';
-        let ACTION = 'upload';
-        let url = `${HOST}/${controller}/${ACTION}`;
+        const id = file._id;
+        let url = `${HOST}/${CONTROLLER}/${ACTION}?fileId=${id}`;
+        
+        const { data: fileToDownload } = await http.get(url);
+        //alert('url to download is: ', url);
+        console.log('fileToDownload to download is:', fileToDownload);
+        // create file in browser
+        const fileName = fileToDownload.title;
+        const json = JSON.stringify(fileToDownload/*, null, 2*/);
+        const blob = new Blob([json], { type: fileToDownload.contentType/*"application/json"*/ });
+        const href = URL.createObjectURL(blob);
+
+        // create "a" HTLM element with href to file
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = fileName;// + fileToDownload.extension;
+        document.body.appendChild(link);
+        link.click();
+
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+        console.log("In handle download");
+    }
+
+    handleFileUpload = async (file) => {
+        const HOST = 'https://localhost:7027';
+        const CONTROLLER = 'cloud';        
+        const ACTION = 'upload';
+
+        let url = `${HOST}/${CONTROLLER}/${ACTION}`;
         console.log('url is: ', url);
 
         const formData = new FormData();
@@ -74,6 +105,7 @@ class Cloud extends Component {
                         sortColumn={sortColumn}
                         onCheck={this.handleCheck}
                         onDelete={this.handleDelete}
+                        onDownload={this.handleDownload}
                         onSort={this.handleSort}
                     />
                 </div>

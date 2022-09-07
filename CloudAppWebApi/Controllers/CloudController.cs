@@ -72,6 +72,18 @@ namespace CloudAppWebApi.Controllers
             return Ok(successMessage);
         }
 
+        [HttpGet("download")]
+        [Route("/download")]
+        public async Task<IFile> Download(string fileId)
+        {
+            var file = await _dbConnection.GetFileById(fileId);
+            if (file == null)
+            {
+                throw new Exception($"File with Id {fileId} was not found.");
+            }
+            return file;
+        }
+
         private CloudFile FormToFileEntity(IFormFile form)
         {
             byte[] data;
@@ -79,13 +91,18 @@ namespace CloudAppWebApi.Controllers
             {
                 data = br.ReadBytes((int)form.OpenReadStream().Length);
             }
+
+            var fileName = form.FileName;
+            var fileNameSplitted = fileName.Split('.');
+            var extension = fileNameSplitted[fileNameSplitted.Length - 1];
             var file = new CloudFile
             {
-                Title = form.FileName,
-                Extension = form.ContentType,
+                Title = fileName.Replace($".{extension}", ""),
+                Extension = extension,
                 FileSize = form.Length.ToString(),
                 Content = data,
-                ModifiedDate = DateTime.Now.ToString("MM/dd/yyyy")
+                ModifiedDate = DateTime.Now.ToString("MM/dd/yyyy"),
+                ContentType = form.ContentType
             };
             return file;
         }

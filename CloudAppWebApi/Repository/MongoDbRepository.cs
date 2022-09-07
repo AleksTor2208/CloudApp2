@@ -27,10 +27,11 @@ namespace CloudAppWebApi.Repository
             return results.ToList().Select(r => BsonSerializer.Deserialize<CloudFile>(r));
         }
 
-        public IFile? GetDetails(string Id)
+        public async Task<IFile?> GetFileById(string fileId)
         {
             var collection = _database.GetCollection<CloudFile>(CloudTableName);
-            return collection?.Find(d => d.Id == Id)?.ToList()?.FirstOrDefault();
+            var result = await collection.FindAsync(d => d.Id == fileId);
+            return result?.ToList()?.FirstOrDefault();
         }
 
         public Task<IFile> Delete(string Id)

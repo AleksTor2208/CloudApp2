@@ -5,7 +5,7 @@ namespace CloudAppWebApi.Repository
     public interface IDbRepository
     {
         Task<IEnumerable<IFile>> GetFiles();
-        IFile? GetDetails(string Id);
+        Task<IFile?> GetFileById(string fileId);
         Task<IFile> DownloadFile(string Id);
         Task<IFile> Delete(string Id);
 
