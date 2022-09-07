@@ -37,10 +37,11 @@ class Form extends Component {
 
 
         //if (errors) return;
-        this.doSubmit(navigate);
+        this.doSubmit(e, navigate);
     };
 
     handleChange = ({ currentTarget: input }) => {
+
         console.log("I'm in handleChange, input value is: ", input);
         const errors = { ...this.state.errors }
         const errorMessage = this.validateProperty(input);

@@ -25,14 +25,6 @@ namespace CloudAppWebApi.Controllers
             _dbConnection = dbConnection;
         }
 
-        [HttpGet("Test")]
-        [Route("/test")]
-        public void Test()
-        {
-            Console.Write("What the fag.");
-        }
-
-
         [HttpGet("files")]
         [Route("/files")]
         public async Task<IEnumerable<IFile>> Get()
@@ -56,52 +48,17 @@ namespace CloudAppWebApi.Controllers
 
         [HttpPost("upload")]
         [Route("/upload")]
-        public async Task<IActionResult> OnPostUploadAsync([FromBody] Entity entity)
+        public async Task<IActionResult> OnPostUploadAsync(IFormFile file/*[FromBody] Entity entity*/)
         {
-            HttpContext.Request.EnableBuffering();
-
-            string body = string.Empty;
-
-            var req = HttpContext.Request;
-
-            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync().ConfigureAwait(false);
-
-            //req.EnableRewind();
-            //content.Position = 0;
-
-            //using (var mem = new MemoryStream())
-            //using (var reader = new StreamReader(mem, encoding: Encoding.UTF8))
-            //{
-            //    Request.Body.CopyTo(mem);
-            //    mem.Seek(0, SeekOrigin.Begin);
-
-            //    reader.BaseStream.Seek(0, SeekOrigin.Begin);
-            //    body = await reader.ReadToEndAsync();
-            //}  
-
-            //if (string.IsNullOrEmpty(body))
-            //{
-            //    _logger.LogError("Unable to upload empty JSon.");
-            //    return BadRequest();
-            //}
-
-            //var jsonResult = JsonConvert.DeserializeObject(body)?.ToString();
-
-            //CloudFile? fille = null;
-            //if (jsonResult != null)
-            //{
-            //    fille = JsonConvert.DeserializeObject<CloudFile>(jsonResult);
-            //}
-
-            if (entity == null || string.IsNullOrEmpty(entity.File.Id))
+            var entity = FormToFileEntity(file);
+            if (entity == null || string.IsNullOrEmpty(entity.Title))
             {
                 _logger.LogError("Parsed Json file is invalid.");
                 return BadRequest();
             }
             try
             {
-                //var document = file.ToBsonDocument();
-                await _dbConnection.UploadFileAsync(entity.File);
+                await _dbConnection.UploadFileAsync(entity);
                 List<IFormFile> files = new List<IFormFile>();
                 _logger.LogInformation("In OnPostUploadAsync()");
                
@@ -110,47 +67,27 @@ namespace CloudAppWebApi.Controllers
             {
                 throw;
             }
-            _logger.LogInformation($"file was uploaded successfully.");
-            // Process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-            string message = "file was uploaded successfully.";
-            return Ok(message);
+            string successMessage = $"file was uploaded successfully.";
+            _logger.LogInformation(successMessage);
+            return Ok(successMessage);
         }
 
-            //[HttpPost]
-            //public ActionResult ProcessImport(HttpPostedFileBase file)
-            //{
-            //    try
-            //    {
-            //        ViewBag.Message = "Your contact page.";
-
-            //        ZipArchive archive = new ZipArchive(file.InputStream);
-            //        var htmlFileManager = new HtmlFilesLoadManager();
-            //        var count = 1;
-            //        _logger.LogInformation("Start Import");
-            //        foreach (ZipArchiveEntry entry in archive.Entries)
-            //        {
-            //            _logger.LogInformation($"Loading file # {count} out of {archive.Entries.Count()}");
-            //            if (entry.FullName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
-            //            {
-            //                using (var stream = entry.Open())
-            //                using (var reader = new StreamReader(stream))
-            //                {
-            //                    var htmlDocument = reader.ReadToEnd();
-            //                    htmlFileManager.ProcessFile(entry.ToString(), htmlDocument);
-            //                }
-            //            }
-            //            count++;
-            //        }
-            //        return new HttpStatusCodeResult(HttpStatusCode.OK);
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        Log.Error("Error during zip files import:");
-            //        Log.Error(e.Message);
-            //        Log.Error(e.StackTrace);
-            //        throw;
-            //    }
-            //}
+        private CloudFile FormToFileEntity(IFormFile form)
+        {
+            byte[] data;
+            using (var br = new BinaryReader(form.OpenReadStream()))
+            {
+                data = br.ReadBytes((int)form.OpenReadStream().Length);
+            }
+            var file = new CloudFile
+            {
+                Title = form.FileName,
+                Extension = form.ContentType,
+                FileSize = form.Length.ToString(),
+                Content = data,
+                ModifiedDate = DateTime.Now.ToString("MM/dd/yyyy")
+            };
+            return file;
         }
     }
+}

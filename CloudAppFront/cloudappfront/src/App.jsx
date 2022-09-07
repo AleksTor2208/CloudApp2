@@ -5,7 +5,6 @@ import { Layout } from './components/Layout';
 import './custom.css';
 //import { toast } from 'react-toastify';
 
-
 //toast.configure();
 
 export default class App extends Component {

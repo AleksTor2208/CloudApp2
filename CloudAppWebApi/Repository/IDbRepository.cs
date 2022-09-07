@@ -9,6 +9,6 @@ namespace CloudAppWebApi.Repository
         Task<IFile> DownloadFile(string Id);
         Task<IFile> Delete(string Id);
 
-        Task UploadFileAsync(IFile file);
+        Task UploadFileAsync(CloudFile file);
     }
 }

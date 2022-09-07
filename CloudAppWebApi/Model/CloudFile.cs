@@ -11,7 +11,11 @@ namespace CloudAppWebApi.Model
 
     public class CloudFile : IFile
     {
-        [JsonIgnore]
+        public CloudFile()
+        {                
+        }
+
+        //[JsonIgnore]
         [JsonProperty("_id")]
         public string Id => Guid.NewGuid().ToString();
         [JsonProperty("checked")]
@@ -22,8 +26,8 @@ namespace CloudAppWebApi.Model
         public string Extension { get; set; }
         [JsonProperty("fileSize")]
         public string FileSize { get; set; }
-        //[JsonProperty("content")]
-        //public byte[] Content { get; set; }
+        [JsonProperty("content")]
+        public byte[] Content { get; set; }
         [JsonProperty("modifiedDate")]
         public string ModifiedDate { get; set; }
     }

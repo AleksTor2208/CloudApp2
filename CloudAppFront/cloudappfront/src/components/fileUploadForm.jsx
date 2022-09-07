@@ -10,28 +10,23 @@ import SubmitForm from './common/submitForm';
 
 class FileUploadForm extends Form {
     state = {
-        files: [],
+        file: {},
+        allFiles: [],
         errors: {},
         maxFilesCount: 10,
         uploadDisabled: true,
-        
+        content: []        
     }
     schema = {}
 
-    doSubmit = async navigate => {
-        // Call the server
-        //const navigate = useNavigate();
-        
-        console.log("In doSubmit of fileUploadForm class");
-        console.log("file to be saved:", this.state.files[0]);
-
+    doSubmit = async (e, navigate) => {
         //saveFile(this.state.files[0]);
-        await this.props.handleUpload(this.state.files[0]);
-        
-        this.setState({ uploadDisabled: true });
-        //const navigate = useNavigate();
-        //toast.success("File added successfully.");
+        await this.props.handleUpload(this.state.file/*this.state.allFiles[0]*/);
+        this.setState({ uploadDisabled: true });        
+        toast.success("File added successfully.");
         alert("File added successfully.");
+
+        //const navigate = useNavigate();
         //navigate('/cloud');
     }
 
@@ -39,7 +34,6 @@ class FileUploadForm extends Form {
 
         const files = e.target.files;
         const filesArr = [...files];
-        console.log("files from the input: ", { filesArr });
         let isValidInput = true;
         const errors = { ...this.state.errors };
 
@@ -50,7 +44,7 @@ class FileUploadForm extends Form {
                 isValidInput = false;
 
                 //one error is enough to be displayed on UI         
-                break;
+                break;  
             }
         }
         if (!isValidInput) {
@@ -60,15 +54,17 @@ class FileUploadForm extends Form {
         }
         console.log("State should be updated");
         console.log("to be added:", filesArr);
-        console.log("current items:", this.state.files);
+        console.log("current items:", this.state.allFiles);
         this.setState({
             errors: {},
             uploadDisabled: false,
-            files: [...filesArr.map(f => this.mapToViewModel(f), ...this.state.files)]
+            file: filesArr[0],
+            allFiles: [...filesArr.map(f => this.mapToViewModel(f), ...this.state.allFiles)]
         });
     };
 
-    mapToViewModel(file) {
+    mapToViewModel = file => {
+
         return {
             "file":
             {
@@ -76,20 +72,18 @@ class FileUploadForm extends Form {
                 "title": file.name,
                 "extension": file.name.split('.').pop(),
                 "fileSize": file.size.toString(),
+                //"content": this.state.content,
                 "modifiedDate": Date.now().toString()
-            }            
+            }
         }
     }
 
     validate = ({ name: filename, size }) => {
-        //const errors = { ...this.state.errors }
 
         if (!filename) {
-            //errors["Name"] = "File name is empty.";
             return { "Name error": "File name is empty." };
         }
         else if (!size || size === 0) {
-            //errors["File Size"] = "File size is empty.";
             return { "FileSize error": "File size is empty." };
         }
         const fileExt = filename.split('.').pop();
@@ -116,12 +110,12 @@ class FileUploadForm extends Form {
     }
 
     render() {
-        const { files, errors, uploadDisabled } = this.state
+        const { allFiles, errors, uploadDisabled } = this.state
         const errorKey = Object.keys(errors)[0];
 
         return (
             <SubmitForm
-                files={files}
+                files={allFiles}
                 errors={errors}
                 errorKey={errorKey}
                 handleSubmit={this.handleSubmit}

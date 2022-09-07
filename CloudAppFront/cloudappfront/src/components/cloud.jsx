@@ -38,8 +38,6 @@ class Cloud extends Component {
     };
 
     handleFileUpload = async (file) => {
-        console.log("handleUpload: ", file);
-        //saveFile(file);
 
         let HOST = 'https://localhost:7027';
         let controller = 'cloud';
@@ -47,20 +45,22 @@ class Cloud extends Component {
         let url = `${HOST}/${controller}/${ACTION}`;
         console.log('url is: ', url);
 
-        const headers = {
-            'Content-Type': 'application/json'            
-        };
+        const formData = new FormData();
+        formData.append('file', file)
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
 
-        http.post(url, file, { headers })
+        http.post(url, formData, config)
             .then((res) => {
                 console.log("RESPONSE RECEIVED: ", res);
             })
             .catch((err) => {
                 console.log("AXIOS ERROR: ", err);
             })
-        //const response = await http.post(url, file, { headers });
         //event.preventDefault();
-        alert("response is: ", response);
     }   
 
 
@@ -82,7 +82,6 @@ class Cloud extends Component {
                     <FileUploadForm handleUpload={this.handleFileUpload} />
                 </div>
             </div>
-
         );
     }
 }
