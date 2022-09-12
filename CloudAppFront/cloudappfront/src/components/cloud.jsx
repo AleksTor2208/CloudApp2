@@ -17,8 +17,6 @@ class Cloud extends Component {
         sortColumn: { path: "title", order: "asc" }
     }
 
-    
-
     async componentDidMount() {
         console.log('componentDidMount');
         const { data: files }  = await http.get('https://localhost:7027/cloud/files');
@@ -49,11 +47,14 @@ class Cloud extends Component {
         const { data: fileToDownload } = await http.get(url);
         //alert('url to download is: ', url);
         console.log('fileToDownload to download is:', fileToDownload);
+        const { title : fileName, content, contentType } = fileToDownload;
+
         // create file in browser
-        const fileName = fileToDownload.title;
-        const json = JSON.stringify(fileToDownload/*, null, 2*/);
-        const blob = new Blob([json], { type: fileToDownload.contentType/*"application/json"*/ });
-        const href = URL.createObjectURL(blob);
+        //const json = JSON.stringify(fileToDownload/*, null, 2*/);
+        const blob = new Blob([fileToDownload.content], { type: fileToDownload.contentType/*"application/json"*/ });
+        //const href = URL.createObjectURL(blob);
+        const href = `data:${contentType};base64,${content}`;
+
 
         // create "a" HTLM element with href to file
         const link = document.createElement("a");
